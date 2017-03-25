@@ -1,0 +1,31 @@
+
+
+Specification:
+--------------
+
+Our task is to create a generator of an accentual-syllabic poetry.
+
+Verses in this kind of poetry are restricted by the rhythm of accents, all
+verses must have the same number of syllables and the verses in the strophe
+rhyme by the chosen pattern. See Shakespeare's sonnets as an example.
+
+
+
+
+HMM will be trained on n-grams of syllables. Generator's input will be the
+format of the poem and on output there will be a text which is pronouncable,
+reminds given language and author, fits the given format precisly and
+doesn't have any meaning.
+
+I can use my rule-based implementation of automatic syllabizer for Czech
+and train the model on Czech poetry. If I find a syllabizer for other
+language, I can adapt it for it as well.
+
+
+There isn't any other motivation for implementing this except the fact that
+the
+generated poems could be entertaining, unique and possibly interesting
+texts. This idea is in my TODO list for 5 years, since the times when
+I learned programming, so also for me personally it would be a completed
+task.
+

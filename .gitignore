@@ -1,0 +1,4 @@
+.*.sw*
+.gitignore
+__pycache__/
+
