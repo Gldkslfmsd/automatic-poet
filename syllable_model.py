@@ -1,28 +1,12 @@
 
-from sekacek import sekejtext, sekejslovo
 import re
 import random
 
 from ngram import *
 
-def text2syl(text):	
-	t = sekejtext(" "+text+" ")
-	syl = []
-	last = None
-	for sl in re.split(r"( )",t):
-		for s in sl.split("/"):
-			if s == " ":
-				syl[-1] += s
-			else:
-				if last == " ":
-					s = " "+s
-				if "-" in s:
-					syl.extend([ s[:s.index("-")], s[s.index("-"):]])
-				else:
-					syl.append(s)
-			last = s
-	return syl[1:-1]
-
+from text2syl import text2syl
+from czech_word_accentizer import accentize
+from normalization import normalize
 
 def ngram_model_text(tok,N=1):
 	s = random.randint(0,len(tok)-N)
@@ -39,27 +23,188 @@ def ngram_model_text(tok,N=1):
 	print("".join(randomtext))
 
 
-from czech_word_accentizer import accentize 
+from czech_word_accentizer import PRIMARY, SECONDARY, UNSTRESSED
+from czech_word_accentizer import stress_types
+
+from nltk.probability import FreqDist, MLEProbDist
+from collections import Counter, defaultdict
+from itertools import combinations
+
+import pprint
 
 
-import sys
 
-demosent="vykoupal-li on sebe i jeho ve vodě z řeky"
-demosent="sporů mezi havlem a zákonodárným sborem postupně příbývalo"
-demosent="""místo padlého klausova kabinetu zformoval prezident svoji
-úřednickou vládu což posílilo jeho roli v politice ale jen na omezenou
-dobu"""
-#print(text2syl(demosent))
-syl = text2syl(demosent)
-a = accentize(syl)
-print([s+b for s,b in zip(syl,a)])
+class NGramAccentualSyllabicModel:
+
+	START = ("^", None)
+	END = ("$",None)
+
+	# (N-1)-gram
+	class NmoGram:
+		Nmo = None	
+		def __init__(self,syl_acc):
+			self.is_frozen = False
+			self.syl_acc = syl_acc
+			self.primary = defaultdict(lambda: 0)
+			self.secondary = defaultdict(lambda: 0)
+			self.unstressed = defaultdict(lambda: 0)
+
+		def add_next(self, syll_acc):
+			syll, acc = syll_acc
+			if acc == PRIMARY:
+				self.primary[syll] += 1
+			elif acc == SECONDARY:
+				self.secondary[syll] += 1
+			else:
+				self.unstressed[syll] += 1
+			
+		def freeze(self):
+			if self.is_frozen:
+				raise ValueError("already frozen")
+			self.primary_secondary = MLEProbDist(
+				FreqDist(self.primary) + FreqDist(self.secondary)
+				)
+			self.unstressed_secondary = MLEProbDist(
+				FreqDist(self.unstressed) + FreqDist(self.secondary)
+				)
+
+			self.primary = MLEProbDist(FreqDist(self.primary))
+			self.secondary =MLEProbDist(FreqDist(self.secondary))
+			self.unstressed =MLEProbDist(FreqDist(self.unstressed))
+
+		def generate_next(self, stress):
+			if not self.is_frozen:
+				raise ValueError("you must freeze it before")
+			if stress == PRIMARY:
+				d = self.primary
+			elif stress == SECONDARY:
+				d = secondary
+			elif stress == UNSTRESSED:
+				d = unstressed
+			elif stress in (PRIMARY+SECONDARY, SECONDARY+PRIMARY):
+				d = primary_secondary
+			else:
+				d = unstressed_secondary
+			return d.generate()
+
+	def n_grams(self, seq):
+		s = [self.START]*(self.N-1) + list(seq) + [self.END]*(self.N-1)
+		return zip(*(s[i:] for i in range(self.N)))
+
+	def __init__(self, syllables, accents, N=1):
+		
+		self.N = N
+		self.NmoGram.Nmo = N-1
+		init = defaultdict(lambda: defaultdict(lambda: 0))
+		nmo_grams = {}
+
+		for ngram in self.n_grams(zip(syllables,accents)):
+			*nmo_g, n = ngram
+			nmo_g = tuple(nmo_g)
+			if not nmo_g in nmo_grams:
+				nmo_grams[nmo_g] = self.NmoGram(nmo_g)
+
+			nmo_grams[nmo_g].add_next(n)
+
+			acc = tuple(s[1] for s in ngram)
+			syl = tuple(s[0] for s in ngram)
+			init[acc][syl] += 1
+
+		for n in nmo_grams.values():
+			n.freeze()
+
+		self.nmo_grams = nmo_grams
 
 
-#tok = []
-#for line,_ in zip(sys.stdin, range(15000)):
-#	line = line.strip()
-#	tok.extend(text2syl(line))
+		self.init = defaultdict(lambda: MLEProbDist(FreqDist()))
+		for k in init.keys():
+			self.init[k] = MLEProbDist(FreqDist(init[k]))
 
-#ngram_model_text(tok)
+		p = pprint.pformat(self.init)
+		print(p)
 
-# "Ostra_va_ci ma_ju_ krat_ke_ zo_ba_ky"
+
+	def generate_init(self, stress_Ntuple):
+		return self.init[stress_Ntuple].generate()
+
+	def generate_next(self, last_nmo_gram, stress):
+		return self.nmo_grams[last_nmo_gram].generate_next(stress)
+
+
+	def generate_verse(self, metrum, no_secondary=False):
+		
+		i = self.generate_init(tuple(metrum[:self.N]))
+		verse = list(i)
+		for i,m in enumerate(metrum[self.N:]):
+			j=i+1
+			try:
+				n = self.generate_next(tuple(verse[-self.N:]), m)
+			except KeyError:
+				n, *_ = self.generate_init(tuple(metrum[j-self.N+1:j+1]))
+			verse.append(n)
+		print(verse)
+		return verse
+
+
+
+
+class PoemGenerator:
+
+	trochee = ("-. -. -. -.|"*4)[:-1]
+	iamb = (".- .- .- .-|"*4)[:-1]
+	dactyl = ("-.. -.. -.. | -.. -.. -.|" *2)[:-1]
+
+
+	def __init__(self, model):
+		self.model = model
+
+
+
+	def generate_form(self, form):
+		form = "".join(c for c in form if c!=" ")
+		verses = form.split("|")
+
+		poem = []
+		for v in verses:
+			metrum = [ (PRIMARY if m=="-" else UNSTRESSED) for m in v ]
+			verse = self.model.generate_verse(metrum)
+			poem.append(verse)
+
+		print(poem)
+		print("\n".join("".join(v) for v in poem))
+
+	
+		
+
+
+import pickle
+import os.path
+def main():
+	from sys import argv, stderr, stdin, stdout
+	if not os.path.exists("vse.p") or True:
+		text = stdin.read()
+		normed = normalize(text)
+		print("normalizován text")
+		ls = [ text2syl(s) for s in normed ]
+		print("sylabifikace")
+		la = [ accentize(s) for s in ls ]
+		print("akcenty")
+		syll = [ item for sublist in ls for item in sublist ]
+		accents = [ item for sublist in la for item in sublist ]
+		print("flatten")
+#		pickle.dump( (syll, accents), open("vse.p", "wb"))
+#		print("uloženo")
+	else:
+		syll, accents = pickle.load(open("vse.p", "rb"))
+
+	print("tady")
+	m = NGramAccentualSyllabicModel(syll, accents)
+
+	pg = PoemGenerator(m)
+	pg.generate_form(PoemGenerator.trochee)
+
+
+
+if __name__ == "__main__":
+	main()
+

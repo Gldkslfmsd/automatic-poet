@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
-"""Czech word-accentizer -- assign word-stress to Czech sentence."""
+"""Czech word-accentizer -- assign word-stress to Czech sentence splitted
+to syllables."""
 
 # Accentizer is a finite state transducer.
 # It takes a sequence of syllables and tranlates it to a sequence of following
@@ -8,6 +9,8 @@
 PRIMARY="primary"  
 UNSTRESSED="unstressed"
 SECONDARY="secondary" 
+
+stress_types = [PRIMARY, UNSTRESSED, SECONDARY]
 
 # We distinguish syllables on input by following types (so in fact the input
 # alphabet has only 5 symbols):
@@ -26,7 +29,7 @@ PMP = [ " "+p+" " for p in PMP ]
 def is_pmp(syllable):
 	return syllable in PMP
 
-# NOTE: "se" is an ambiguous word, it can be either a preposition or
+# NOTE: "se" is an ambiguous word, it can be either a preposition "with" or
 # an enclitical reflexive pronoun. An advanced analysis should be used to
 # destinguish it, but for simplicity we don't do it and simply mark it as an
 # enclitic.
@@ -139,6 +142,9 @@ def accentize(syllables):
 	Example:
 	"On odešel domů" => [" on "," o","de","šel "," do","mů "]
 	"""
+
+	if not syllables:
+		return []
 
 	current_state = initial_state(syllables[0])
 	accents = [ states[current_state] ]
