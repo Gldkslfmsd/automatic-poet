@@ -28,7 +28,7 @@ from czech_word_accentizer import stress_types
 
 from nltk.probability import FreqDist, MLEProbDist
 from collections import Counter, defaultdict
-from itertools import combinations
+from itertools import combinations, product
 
 import pprint
 
@@ -73,6 +73,7 @@ class NGramAccentualSyllabicModel:
 			self.unstressed =MLEProbDist(FreqDist(self.unstressed))
 
 		def generate_next(self, stress):
+			print(stress)
 			if not self.is_frozen:
 				raise ValueError("you must freeze it before")
 			if stress == PRIMARY:
@@ -120,18 +121,32 @@ class NGramAccentualSyllabicModel:
 		for k in init.keys():
 			self.init[k] = MLEProbDist(FreqDist(init[k]))
 
+		# allowing secondary stress...
+		for sec in product([SECONDARY, ""], repeat=self.N):
+			if sec==("",)*self.N: continue
+			for key in product([PRIMARY, UNSTRESSED], repeat=self.N):
+				add = tuple(SECONDARY if s==SECONDARY else k for s,k in zip(sec,key))
+				print("přidávám", tuple(k+s for k,s in zip(key,sec)))
+				self.init[tuple(k+s for k,s in zip(key,sec))] = MLEProbDist(
+					FreqDist(init[key]) + FreqDist(init[add])
+					)
+
+
 		p = pprint.pformat(self.init)
 		print(p)
 
 
 	def generate_init(self, stress_Ntuple):
+		print(stress_Ntuple)
 		return self.init[stress_Ntuple].generate()
 
 	def generate_next(self, last_nmo_gram, stress):
 		return self.nmo_grams[last_nmo_gram].generate_next(stress)
 
 
-	def generate_verse(self, metrum, no_secondary=False):
+	def generate_verse(self, metrum, allow_secondary=True):
+		if allow_secondary:
+			metrum = [ m+SECONDARY for m in metrum ]
 		
 		i = self.generate_init(tuple(metrum[:self.N]))
 		verse = list(i)
@@ -197,11 +212,11 @@ def main():
 	else:
 		syll, accents = pickle.load(open("vse.p", "rb"))
 
-	print("tady")
-	m = NGramAccentualSyllabicModel(syll, accents)
+	print("predzpracovane_nacteno")
+	m = NGramAccentualSyllabicModel(syll, accents, N=2)
 
 	pg = PoemGenerator(m)
-	pg.generate_form(PoemGenerator.trochee)
+	pg.generate_form(PoemGenerator.dactyl)
 
 
 
