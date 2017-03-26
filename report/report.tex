@@ -1,0 +1,201 @@
+\documentclass[a4]{article}
+%\usepackage{czech}
+\usepackage{graphicx}
+\usepackage[utf8]{inputenc}   % pro unicode UTF-8
+\usepackage{booktabs}
+\usepackage{hyperref}
+%#\usepackage{qtree}
+%\usepackage{graphviz}
+\usepackage{authblk}
+%\usepackage{tikz-dependency}
+\usepackage[ampersand]{easylist}
+
+\begin{document}
+
+\title{Automatic accentual-syllabic poet}
+
+\author{Dominik Macháček}
+\affil{
+Saarland University, Saarbrücken, Germany,
+dominik.machacek@matfyz.cz
+}
+
+\date{\today}
+
+%\pacs{PACS numbers go here. These are classification codes for your  research. See {\tt http://publish.aps.org/PACS/} for more info.}
+\maketitle
+
+\begin{abstract}
+TODO: An abstract is a great convenience for the reader and is required by all journals.
+\end{abstract}
+
+
+\section{Introduction}
+
+Our task is to create a generator of an accentual-syllabic poetry.
+
+Verses in this kind of poetry are restricted by the rhythm of accents, all
+verses must have given number of syllables and the verses in a strophe
+rhyme by the chosen pattern. See example in figure \ref{may}.
+
+\begin{figure}[ht]
+\label{may}
+\centerline{
+I {\bf know} a {\bf glade}, spring {\bf crys}tal {\bf clear},
+}
+\centerline{
+in {\bf dee}pest {\bf wood}land, {\bf crowned}
+}
+\centerline{
+by {\bf sha}dy {\bf ferns} in {\bf si}lhou{\bf ettes},
+}
+\centerline{
+red {\bf hea}ther {\bf all} a{\bf round}.
+}
+\caption{First strophe of a poem "Crystal Spring" by J. V. Sládek, translated by
+Václav Z J Pinkava. Bold syllables
+have accents. There is a regular pattern of accented and accentless
+syllables in each verse and second and fourth verse rhyme.}
+%\href{http://www.vzjp.cz/basne.htm#Sladek}
+\end{figure}
+
+
+% Summary?
+
+In this project we make an automatic generator of accentual-syllabic
+poems. Its input are a poetic form, namely a pattern of accented and
+accent-less syllables in each verse, and a raw coherent Czech text. The
+whole process of generating is fully automatic, no manuall anotation of
+the text is needed.
+
+On output there are poems compounded from newly-created nonsense words
+reminding Czech language. They are pronouncable and they precisely
+fit into the given poetic form.
+
+\section{Motivation}
+
+Accentual-syllabic poetry is very popular genre in many national cultures
+including Czech, English and German. Poems written by human
+poets are usually written in some variety of natural language, their words
+have meaning and the whole poem has some intention.
+To write a good poem is a difficult task, a poet must choose proper words
+and fit them into a pleasant form. 
+
+Our motivation is the fact that such poems will be unique, interesting and
+entertaining pieces of art. They could also be published for
+general public and draw attention to the whole field of Computational Linguistics.
+
+\section{Related works}
+
+TODO
+
+\section{Solution}
+
+Generator's workflow consists of two phases, training and generating. 
+
+In
+training phase, an input text is preprocessed and splitted to syllables.
+Then stresses are indicated.  Finally, a language model is created from list
+of syllables and their accents.
+
+In generating phase, a language model is used for creating of a poem by given form.
+
+More detailed descriptions of each mentioned process follow in special subsections.
+
+Our generator can work for arbitrary natural language, but we work with
+Czech. Reasons for this decision is that there exist many
+resources of Czech texts, we can use an automatic tool for splitting text to syllables,
+and the word-stress in Czech language is very regular so we can indicate
+it automatically. Czech is also a native language of the author of this
+project, so we are able to evaluate the quality of resulting poems. 
+
+For some other languages we should use either a special tools for splitting
+to syllables and for accent indication (which we don't have for any other
+language including English),
+or we could use a corpus annotated with syllables and accents, but this
+restricts the domain and size of input texts.
+
+
+\subsection{Text preprocessing}
+
+In text preprocessing we do tokenization and sentence segmentation, because
+syllabification and accentification requires single sentences. We also
+remove punctuation and transform text to lowercase. This decreases number of
+unique syllables and makes language model more inovative.
+
+For tokenization and segmentation we used NLTK. % reference
+
+\subsection{Syllabification}
+
+For automatic syllabification we used "sekáček". % TODO
+It's a Python implementation of rules created by experts on this issue, who
+published it in % reference
+
+\subsection{Accents}
+
+Accents in Czech 
+
+\subsection{Language model}
+
+\subsection{Generating}
+
+\section{Example outputs}
+
+\section{Conclusion}
+
+
+\begin{thebibliography}{99}
+
+\bibitem{lamport}
+ {\sl LaTeX : A Documentation Preparation System User's Guide and Reference Manual}, Leslie Lamport [1994] (ISBN: 0-201-52983-1) pages: xvi+272.
+
+\bibitem{latt}
+I.M. Smart {\it et al.}, J. Plumb Phys. {\bf 50}, 393 (1983).
+
+\end{thebibliography}
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+\end{document}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+%\centerline{
+%Late {\bf eve}ning, {\bf on} the {\bf first} of {\bf May}—
+%}
+%
+%\centerline{
+%{\bf The} twilit {\bf May}—the {\bf time} of {\bf love}.
+%}
+%\centerline{
+%{\bf Mel}tingly {\bf called} the {\bf turt}le-{\bf dove},
+%}
+%\centerline{
+%Where {\bf rich} and {\bf sweet} {\bf pi{\bf ne}woods {\bf lay}.
+%}

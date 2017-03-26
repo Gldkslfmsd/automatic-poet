@@ -190,9 +190,6 @@ class PoemGenerator:
 		print(poem)
 		print("\n".join("".join(v) for v in poem))
 
-	
-		
-
 
 import pickle
 import os.path

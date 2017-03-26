@@ -1,13 +1,35 @@
 
 
+Introduction + Specification
+Motivation
+Related work
+Solution
+	-- text normalization
+	-- syllabification
+	-- accents
+	-- language model
+	-- generating
+Example outputs
+Conclusion
+References
+
+
+
 Specification:
 --------------
 
 Our task is to create a generator of an accentual-syllabic poetry.
 
 Verses in this kind of poetry are restricted by the rhythm of accents, all
-verses must have the same number of syllables and the verses in the strophe
-rhyme by the chosen pattern. See Shakespeare's sonnets as an example.
+verses must have given number of syllables and the verses in a strophe
+rhyme by the chosen pattern. 
+
+See Shakespeare's sonnets as an example.
+
+Late evening, on the first of May—
+The twilit May—the time of love.
+Meltingly called the turtle-dove,
+Where rich and sweet pinewoods lay.
 
 
 
@@ -28,4 +50,10 @@ generated poems could be entertaining, unique and possibly interesting
 texts. This idea is in my TODO list for 5 years, since the times when
 I learned programming, so also for me personally it would be a completed
 task.
+
+
+
+
+
+
 
