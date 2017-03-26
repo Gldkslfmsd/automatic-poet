@@ -79,13 +79,13 @@ class NGramAccentualSyllabicModel:
 			if stress == PRIMARY:
 				d = self.primary
 			elif stress == SECONDARY:
-				d = secondary
+				d = self.secondary
 			elif stress == UNSTRESSED:
-				d = unstressed
+				d = self.unstressed
 			elif stress in (PRIMARY+SECONDARY, SECONDARY+PRIMARY):
-				d = primary_secondary
+				d = self.primary_secondary
 			else:
-				d = unstressed_secondary
+				d = self.unstressed_secondary
 			return d.generate()
 
 	def n_grams(self, seq):
@@ -126,7 +126,7 @@ class NGramAccentualSyllabicModel:
 			if sec==("",)*self.N: continue
 			for key in product([PRIMARY, UNSTRESSED], repeat=self.N):
 				add = tuple(SECONDARY if s==SECONDARY else k for s,k in zip(sec,key))
-				print("přidávám", tuple(k+s for k,s in zip(key,sec)))
+#				print("přidávám", tuple(k+s for k,s in zip(key,sec)))
 				self.init[tuple(k+s for k,s in zip(key,sec))] = MLEProbDist(
 					FreqDist(init[key]) + FreqDist(init[add])
 					)
@@ -137,10 +137,11 @@ class NGramAccentualSyllabicModel:
 
 
 	def generate_init(self, stress_Ntuple):
-		print(stress_Ntuple)
+		print("init",stress_Ntuple)
 		return self.init[stress_Ntuple].generate()
 
 	def generate_next(self, last_nmo_gram, stress):
+		print("hledám!!!",last_nmo_gram, list(self.nmo_grams.keys())[:3])
 		return self.nmo_grams[last_nmo_gram].generate_next(stress)
 
 
@@ -149,9 +150,10 @@ class NGramAccentualSyllabicModel:
 			metrum = [ m+SECONDARY for m in metrum ]
 		
 		i = self.generate_init(tuple(metrum[:self.N]))
+		print("našlo se init:",i)
 		verse = list(i)
 		for i,m in enumerate(metrum[self.N:]):
-			j=i+1
+			j=i+self.N
 			try:
 				n = self.generate_next(tuple(verse[-self.N:]), m)
 			except KeyError:
@@ -197,7 +199,7 @@ import os.path
 def main():
 	from sys import argv, stderr, stdin, stdout
 	if not os.path.exists("vse.p") or True:
-		text = stdin.read()
+		text = open("nebrensky", "r").read() #stdin.read()
 		normed = normalize(text)
 		print("normalizován text")
 		ls = [ text2syl(s) for s in normed ]
@@ -216,7 +218,7 @@ def main():
 	m = NGramAccentualSyllabicModel(syll, accents, N=2)
 
 	pg = PoemGenerator(m)
-	pg.generate_form(PoemGenerator.dactyl)
+	pg.generate_form(PoemGenerator.trochee)
 
 
 
