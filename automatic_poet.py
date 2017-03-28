@@ -37,7 +37,8 @@ class PoemGenerator:
 		:returns: a single string
 		"""
 		
-		return "\n".join("".join(s for s,_ in verse) for verse in poem)
+		ptext = "\n".join("".join(s for s,_ in verse) for verse in poem)
+		return ptext.replace("~"," ")
 				
 
 	def generate_form(self, form, rhymes=None):
