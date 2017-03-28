@@ -5,9 +5,9 @@ from syllable_model import *
 
 class PoemGenerator:
 
-	trochee = ("-. -. -. -.|"*4)[:-1]
-	iamb = (".- .- .- .-|"*4)[:-1]
-	dactyl = ("-.. -.. -.. | -.. -.. -.|" *2)[:-1]
+	trochee = ("-.-.-.-.|"*4)[:-1]
+	iamb = (".-.-.-.-|"*4)[:-1]
+	dactyl = ("-..-..-..|-..-..-.|" *2)[:-1]
 
 
 	def __init__(self, model):
@@ -46,6 +46,8 @@ class PoemGenerator:
 		verses = form.split("|")
 
 		poem = []
+		# in first verse, secondary stress instead of primary or unstressed
+		# is not allowed
 		f = False
 		for v in verses:
 			metrum = [ (PRIMARY if m=="-" else UNSTRESSED) for m in v ]	
@@ -64,6 +66,14 @@ class PoemGenerator:
 		return self.poem2text(p)
 
 
+	def generate_common_pattern(self, pattern):
+		if pattern == "trochee":
+			return self.generate_poem_text(self.trochee, rhymes=(0,0,2,2))
+		if pattern == "dactyle":
+			return self.generate_poem_text(self.dactyle, rhymes=(0,1,2,1))
+
+
+
 if __name__ == "__main__":
 
 	# suppres annoying warning from nltk
@@ -74,7 +84,7 @@ if __name__ == "__main__":
 
 	import pickle
 	import argparse
-	from sys import stderr
+	from sys import stderr, exit
 
 	parser = argparse.ArgumentParser()
 	parser.add_argument(	
@@ -102,8 +112,67 @@ if __name__ == "__main__":
 		type=argparse.FileType("rb"),
 		default=None
 		)
+
+	parser.add_argument(
+		'-p', '--pattern',
+		help="Pattern of stressed ('-') and non-stressed ('.') syllables in "
+		"a poem. Verses are separated by '|'. "
+		"Example: '-.-.|-.-.|-'",
+		default=PoemGenerator.trochee,
+		type=str,
+		)
+
+	parser.add_argument(
+		'--rhyme-pattern',
+		help="Pattern of rhymes in a poem. Example: if we have 4-verse "
+		"poem, 0123 is no rhyme, 0022 means first and second pair of "
+		"verses will rhyme",
+		default="0022",
+		type=str,
+		)
+
+	parser.add_argument(
+		'-c', '--use-common-pattern',
+		help='Use common poem pattern. "trochee" for '
+		'"-.-.-.|-.-.-.|-.-.-.|-.-.-" with rhyme 0022 (this is default), '
+		'"dactyle" for "-..-..-..|-..-..-.|-..-..-..|-..-..-." rhymed 0121.',
+		type=str,
+		default="trochee",
+		)
+
+	parser.add_argument(
+		'-r', '--repeat',
+		help='Repeat generation REPEAT number of times for more strophes, default is once.',
+		default=1,
+		type=int
+		)
 	args = parser.parse_args()
 
+	# checking verse pattern
+	pattern = args.pattern
+	if any(map(lambda x: x not in "-.|",pattern)):
+		print(pattern)
+		print("invalid pattern, exiting",file=stderr)
+		exit(1)
+
+	# cheching lenght of verses
+	for s in pattern.split("|"):
+		if len(s)<args.N:
+			print("verse is too short. N-gram model is used for "
+			"N=%s, minimal number of syllables in a verse is %s"
+			% (args.N, args.N))
+			exit(1)
+
+	# checking rhyme pattern
+	try:
+		rp = args.rhyme_pattern
+		rhymes = tuple(int(r) for r in rp)
+		print(rhymes)
+	except ValueError:
+		print("invalid rhyme pattern, exiting")
+		exit(1)
+
+	# loading and processing data
 	if args.load_model:
 		print("loading model...", file=stderr)
 		model = pickle.load(args.load_model)
@@ -130,8 +199,11 @@ if __name__ == "__main__":
 		print("...model saved", file=stderr)
 
 	pg = PoemGenerator(model)
-	for _ in range(3):
-		p = pg.generate_poem_text("-.-.|-.-.", rhymes=(0,0))
+	for _ in range(args.repeat):
+		if args.use_common_pattern:
+			p = pg.generate_common_pattern(args.use_common_pattern)
+		else:
+			p = pg.generate_poem_text(pattern, rhymes=rhymes)
 		print(p)
 		print()
 
