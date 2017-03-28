@@ -1,37 +1,14 @@
 
-import re
-import random
-
-from ngram import *
-
 from text2syl import text2syl
 from czech_word_accentizer import accentize
+from czech_word_accentizer import PRIMARY, SECONDARY, UNSTRESSED
 from normalization import normalize
 
-def ngram_model_text(tok,N=1):
-	s = random.randint(0,len(tok)-N)
-	start = tuple(tok[s:s+N])
-
-	ngram = BasicNgram(N+1, tok)
-
-	randomtext = list(start)
-	for _ in range(100-N):
-		d = ngram[tuple(randomtext[-N:])]
-		nextword = d.generate()
-		randomtext.append(nextword)
-
-	print("".join(randomtext))
-
-
-from czech_word_accentizer import PRIMARY, SECONDARY, UNSTRESSED
-from czech_word_accentizer import stress_types
 
 from nltk.probability import FreqDist, MLEProbDist
-from collections import Counter, defaultdict
-from itertools import combinations, product
-
+from collections import defaultdict
+from itertools import product
 import pprint
-
 
 
 class NGramAccentualSyllabicModel:
@@ -39,10 +16,16 @@ class NGramAccentualSyllabicModel:
 	START = ("^", None)
 	END = ("$",None)
 
-	# (N-1)-gram
 	class NmoGram:
+		"""(N-1)-gram. """
+		
 		Nmo = None	
 		def __init__(self,syl_acc):
+			""":arg syl_acc: an (N-1) tuple of pairs (syllable, accent)
+			After freezing, self.primary will be a probability distribution
+			for generating of next syllable with primary stress from previous (N-1)-syllables.
+			self.secondary and self.unstressed analogically.
+			"""
 			self.is_frozen = False
 			self.syl_acc = syl_acc
 			self.primary = defaultdict(lambda: 0)
@@ -50,17 +33,23 @@ class NGramAccentualSyllabicModel:
 			self.unstressed = defaultdict(lambda: 0)
 
 		def add_next(self, syll_acc):
+			"""In corpus we have seen an (N-1)-tuple of self.syl_acc followed by 
+			:arg syll_acc."""
+			if self.is_frozen:
+				raise ValueError("can't add next to frozen nmo_tuple")
 			syll, acc = syll_acc
 			if acc == PRIMARY:
-				self.primary[syll] += 1
+				self.primary[syll_acc] += 1
 			elif acc == SECONDARY:
-				self.secondary[syll] += 1
+				self.secondary[syll_acc] += 1
 			else:
-				self.unstressed[syll] += 1
+				self.unstressed[syll_acc] += 1
 			
 		def freeze(self):
+			"""After freeze, this instance is read-only."""
 			if self.is_frozen:
 				raise ValueError("already frozen")
+			self.is_frozen = True
 			self.primary_secondary = MLEProbDist(
 				FreqDist(self.primary) + FreqDist(self.secondary)
 				)
@@ -69,11 +58,10 @@ class NGramAccentualSyllabicModel:
 				)
 
 			self.primary = MLEProbDist(FreqDist(self.primary))
-			self.secondary =MLEProbDist(FreqDist(self.secondary))
-			self.unstressed =MLEProbDist(FreqDist(self.unstressed))
+			self.secondary = MLEProbDist(FreqDist(self.secondary))
+			self.unstressed = MLEProbDist(FreqDist(self.unstressed))
 
 		def generate_next(self, stress):
-			print(stress)
 			if not self.is_frozen:
 				raise ValueError("you must freeze it before")
 			if stress == PRIMARY:
@@ -89,19 +77,28 @@ class NGramAccentualSyllabicModel:
 			return d.generate()
 
 	def n_grams(self, seq):
+		""":arg seq: arbitrary sequence
+		:returns sequence of N-tuples/N-grams from sequence"""
 		s = [self.START]*(self.N-1) + list(seq) + [self.END]*(self.N-1)
 		return zip(*(s[i:] for i in range(self.N)))
 
 	def __init__(self, syllables, accents, N=1):
-		
+		""":arg syllables: a list of syllables from text
+		:arg accents: a list of accents-marks corresponding with syllables
+		:arg N: a positive integer"""
 		self.N = N
 		self.NmoGram.Nmo = N-1
+		
+		# init is a dict from N-tuples of stress symbols -> N-grams of syllables
+		# it's used for generating the very first syllables in a poem
 		init = defaultdict(lambda: defaultdict(lambda: 0))
 		nmo_grams = {}
 
 		for ngram in self.n_grams(zip(syllables,accents)):
 			*nmo_g, n = ngram
 			nmo_g = tuple(nmo_g)
+			if nmo_g == (("za ", SECONDARY),):
+				print(nmo_g)
 			if not nmo_g in nmo_grams:
 				nmo_grams[nmo_g] = self.NmoGram(nmo_g)
 
@@ -109,39 +106,30 @@ class NGramAccentualSyllabicModel:
 
 			acc = tuple(s[1] for s in ngram)
 			syl = tuple(s[0] for s in ngram)
-			init[acc][syl] += 1
+			init[acc][ngram] += 1
 
 		for n in nmo_grams.values():
 			n.freeze()
 
 		self.nmo_grams = nmo_grams
 
-
 		self.init = defaultdict(lambda: MLEProbDist(FreqDist()))
 		for k in init.keys():
 			self.init[k] = MLEProbDist(FreqDist(init[k]))
 
-		# allowing secondary stress...
+		# allowing secondary stress instead of primary or unstressed syllables...
 		for sec in product([SECONDARY, ""], repeat=self.N):
 			if sec==("",)*self.N: continue
 			for key in product([PRIMARY, UNSTRESSED], repeat=self.N):
 				add = tuple(SECONDARY if s==SECONDARY else k for s,k in zip(sec,key))
-#				print("přidávám", tuple(k+s for k,s in zip(key,sec)))
 				self.init[tuple(k+s for k,s in zip(key,sec))] = MLEProbDist(
 					FreqDist(init[key]) + FreqDist(init[add])
 					)
 
-
-		p = pprint.pformat(self.init)
-		print(p)
-
-
 	def generate_init(self, stress_Ntuple):
-		print("init",stress_Ntuple)
 		return self.init[stress_Ntuple].generate()
 
 	def generate_next(self, last_nmo_gram, stress):
-		print("hledám!!!",last_nmo_gram, list(self.nmo_grams.keys())[:3])
 		return self.nmo_grams[last_nmo_gram].generate_next(stress)
 
 
@@ -150,17 +138,23 @@ class NGramAccentualSyllabicModel:
 			metrum = [ m+SECONDARY for m in metrum ]
 		
 		i = self.generate_init(tuple(metrum[:self.N]))
-		print("našlo se init:",i)
 		verse = list(i)
 		for i,m in enumerate(metrum[self.N:]):
 			j=i+self.N
+			x = (('za ', 'secondary'),)
+			#y = self.nmo_grams[x].generate()
+			
 			try:
-				n = self.generate_next(tuple(verse[-self.N:]), m)
-			except KeyError:
+				k = tuple(verse[-self.N+1:]) if self.N>1 else ()
+				n = self.generate_next(k, m)
+			except IndexError:
 				n, *_ = self.generate_init(tuple(metrum[j-self.N+1:j+1]))
+			except KeyError:
+				pass
+				raise
 			verse.append(n)
-		print(verse)
-		return verse
+		verse_str = "".join(s for s,_  in verse)
+		return verse_str
 
 
 
@@ -188,7 +182,7 @@ class PoemGenerator:
 			poem.append(verse)
 
 		print(poem)
-		print("\n".join("".join(v) for v in poem))
+		print("\n".join(poem))
 
 
 import pickle
@@ -212,7 +206,13 @@ def main():
 		syll, accents = pickle.load(open("vse.p", "rb"))
 
 	print("predzpracovane_nacteno")
-	m = NGramAccentualSyllabicModel(syll, accents, N=2)
+
+	x = ('za ', 'secondary')
+	x = ('zlob', UNSTRESSED)
+	
+	m = NGramAccentualSyllabicModel(syll, accents, N=3)
+	
+	open("neb-syll", "w").write("".join(syll))
 
 	pg = PoemGenerator(m)
 	pg.generate_form(PoemGenerator.trochee)
