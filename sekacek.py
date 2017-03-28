@@ -187,11 +187,12 @@ def chybašpatnýregex(s):
 		sys.stderr.write('špatný regulární výraz u slova „'+s+'“\n')
 	chyba_konec()
 
-if '-i' in sys.argv:
-	ignorovatvarování=True
-if '--help' in sys.argv:
-	print(nápověda)
-	sys.exit(1)	
+if __name__ == "__main__":
+	if '-i' in sys.argv:
+		ignorovatvarování=True
+	if '--help' in sys.argv:
+		print(nápověda)
+		sys.exit(1)	
 
 souboryvýjimek=['.sekacek']
 oddělovač='/'
@@ -207,57 +208,59 @@ def argumentjevstup(i):
 		else:
 			chybasouborneexistuje(sys.argv[i])
 		i+=1
-i=1
-while i<len(sys.argv):
-	a=sys.argv[i]
-	if a=='-v':
-		try: 
-			i+=1
-			while i<len(sys.argv) and os.path.isfile(sys.argv[i]):
-				if sys.argv[i] not in souboryvýjimek: 
-					souboryvýjimek.append(sys.argv[i])
+
+if __name__ == "__main__":
+	i=1
+	while i<len(sys.argv):
+		a=sys.argv[i]
+		if a=='-v':
+			try: 
 				i+=1
-			i-=1
-		except: chybašpatnýpřepínač()
-	elif re.search(r'^--výjimky=',a):
-		try: 
-			f=a[10:]
-			if os.path.isfile(f):
-				souboryvýjimek.append(f)
+				while i<len(sys.argv) and os.path.isfile(sys.argv[i]):
+					if sys.argv[i] not in souboryvýjimek: 
+						souboryvýjimek.append(sys.argv[i])
+					i+=1
+				i-=1
+			except: chybašpatnýpřepínač()
+		elif re.search(r'^--výjimky=',a):
+			try: 
+				f=a[10:]
+				if os.path.isfile(f):
+					souboryvýjimek.append(f)
+				else:
+					chybasouborneexistuje(f)
+			except: chybašpatnýpřepínač()
+		elif a in ['-t','--tiše']:
+			hlásitochybách=False
+		elif a=='-o':
+			i+=1
+			if i<len(sys.argv):
+				oddělovač=sys.argv[i]
 			else:
-				chybasouborneexistuje(f)
-		except: chybašpatnýpřepínač()
-	elif a in ['-t','--tiše']:
-		hlásitochybách=False
-	elif a=='-o':
-		i+=1
-		if i<len(sys.argv):
-			oddělovač=sys.argv[i]
+				chybašpatnýpřepínač()
+		elif re.search(r'^-o',a):
+			oddělovač=a[2:]
+		elif re.search(r'^--oddělovač=',a):
+			oddělovač=a[12:]
+		elif a=='-s':
+			i+=1
+			if i<len(sys.argv):
+				spojovník=sys.argv[i]
+			else:
+				chybašpatnýpřepínač()
+		elif re.search(r'^-s',a):
+			spojovník=a[2:]
+		elif re.search(r'^--spojovník=',a):
+			spojovník=a[12:]
+		elif a=='-i':
+			0
+		elif a in ['-','--']:
+			argumentjevstup(i+1)
+			break
 		else:
-			chybašpatnýpřepínač()
-	elif re.search(r'^-o',a):
-		oddělovač=a[2:]
-	elif re.search(r'^--oddělovač=',a):
-		oddělovač=a[12:]
-	elif a=='-s':
+			argumentjevstup(i)
+			break
 		i+=1
-		if i<len(sys.argv):
-			spojovník=sys.argv[i]
-		else:
-			chybašpatnýpřepínač()
-	elif re.search(r'^-s',a):
-		spojovník=a[2:]
-	elif re.search(r'^--spojovník=',a):
-		spojovník=a[12:]
-	elif a=='-i':
-		0
-	elif a in ['-','--']:
-		argumentjevstup(i+1)
-		break
-	else:
-		argumentjevstup(i)
-		break
-	i+=1
 
 výjimky=[]
 for s in souboryvýjimek:
