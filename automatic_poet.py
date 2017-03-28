@@ -1,6 +1,8 @@
-
-from syllable_model import *
-
+from syllable_model import NGramAccentualSyllabicModel
+from czech_word_accentizer import PRIMARY, SECONDARY, UNSTRESSED
+from czech_word_accentizer import accentize
+from text2syl import text2syl
+from normalization import normalize
 
 
 class PoemGenerator:
@@ -31,13 +33,15 @@ class PoemGenerator:
 				verse[-1] = d[i]
 		
 		return poem
+
 	
 	def poem2text(self, poem):
 		""":arg poem: list of verses, where verse is a list of pairs ("syllable", "stress")
 		:returns: a single string
 		"""
-		
 		ptext = "\n".join("".join(s for s,_ in verse) for verse in poem)
+		# we replace ~ which was used for joining of unsyllabled
+		# prepositions to the next syllable
 		return ptext.replace("~"," ")
 				
 
@@ -47,7 +51,7 @@ class PoemGenerator:
 
 		poem = []
 		# in first verse, secondary stress instead of primary or unstressed
-		# is not allowed
+		# is not allowed, in other verses it is
 		f = False
 		for v in verses:
 			metrum = [ (PRIMARY if m=="-" else UNSTRESSED) for m in v ]	
@@ -151,7 +155,6 @@ if __name__ == "__main__":
 	# checking verse pattern
 	pattern = args.pattern
 	if any(map(lambda x: x not in "-.|",pattern)):
-		print(pattern)
 		print("invalid pattern, exiting",file=stderr)
 		exit(1)
 
@@ -167,7 +170,6 @@ if __name__ == "__main__":
 	try:
 		rp = args.rhyme_pattern
 		rhymes = tuple(int(r) for r in rp)
-		print(rhymes)
 	except ValueError:
 		print("invalid rhyme pattern, exiting")
 		exit(1)

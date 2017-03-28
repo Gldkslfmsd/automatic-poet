@@ -1,16 +1,8 @@
-
-from text2syl import text2syl
-from czech_word_accentizer import accentize
 from czech_word_accentizer import PRIMARY, SECONDARY, UNSTRESSED
-from normalization import normalize
-
 
 from nltk.probability import FreqDist, MLEProbDist
 from collections import defaultdict
 from itertools import product
-import pprint
-
-import dill
 
 def lam_zero():
 	return 0
@@ -163,11 +155,14 @@ class NGramAccentualSyllabicModel:
 				k = tuple(verse[-self.N+1:]) if self.N>1 else ()
 				n = self.generate_next(k, m)
 			except IndexError:
-				n, *_ = self.generate_init(tuple(metrum[j-self.N+1:j+1]))
-			except KeyError:
-				pass
-				raise
-			verse.append(n)
+				n = self.generate_init(tuple(metrum[j-self.N+1:j+1]))
+				for i in n:
+					verse.append(i)
+			#except KeyError:
+			#	pass
+			#	raise
+			else:
+				verse.append(n)
 		#verse_str = "".join(s for s,_  in verse)
 		return verse
 

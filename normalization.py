@@ -21,7 +21,7 @@ def normalize(text, lowercase=True, filter_interpunction=True):
 		tok = wptokenizer.tokenize(s)
 
 		if filter_interpunction:
-			tok = filter(lambda t: not is_punctuation(t), tok)
+			tok = filter(lambda t: not (is_punctuation(t) or t.isdigit()), tok)
 
 		if lowercase:
 			o = " ".join(map(lambda s: s.lower(), tok))
