@@ -153,8 +153,8 @@ class NGramAccentualSyllabicModel:
 				pass
 				raise
 			verse.append(n)
-		verse_str = "".join(s for s,_  in verse)
-		return verse_str
+		#verse_str = "".join(s for s,_  in verse)
+		return verse
 
 
 
@@ -170,19 +170,53 @@ class PoemGenerator:
 		self.model = model
 
 
+	def add_rhymes(self, poem, rhymes):
+		""":arg poem: output of self.generate_form, e.g.
+		[[(' ně', 'primary'), ('jak ', 'unstressed'), (' pras', 'primary'), ('ka', 'unstressed')], 
+		[(' si ', 'secondary'), (' však ', 'secondary'), (' kva', 'primary'), ('sit ', 'unstressed')]]
+		
+		:arg rhymes: tuple of numbers, they're indeces to poem list
+		 e.g. (0,0) means that last syllable of 1st verse will be written as the last syllable of 2nd verse so
+		 they will rhyme.
+		"""
+		d = {}
+		for i,verse in zip(rhymes, poem):
+			if i not in d:
+				d[i] = verse[-1]
+			else:
+				verse[-1] = d[i]
+		
+		return poem
+	
+	def poem2text(self, poem):
+		""":arg poem: list of verses, where verse is a list of pairs ("syllable", "stress")
+		:returns: a single string
+		"""
+		
+		return "\n".join("".join(s for s,_ in verse) for verse in poem)
+				
 
-	def generate_form(self, form):
+	def generate_form(self, form, rhymes=None):
 		form = "".join(c for c in form if c!=" ")
 		verses = form.split("|")
 
 		poem = []
+		f = False
 		for v in verses:
-			metrum = [ (PRIMARY if m=="-" else UNSTRESSED) for m in v ]
-			verse = self.model.generate_verse(metrum)
+			metrum = [ (PRIMARY if m=="-" else UNSTRESSED) for m in v ]	
+			verse = self.model.generate_verse(metrum, allow_secondary=f)
+			f = True
 			poem.append(verse)
-
-		print(poem)
-		print("\n".join(poem))
+		
+		if rhymes:
+			self.add_rhymes(poem, rhymes=rhymes)
+		
+		
+		return poem
+	
+	def generate_poem_text(self, form, rhymes=None):
+		p = self.generate_form(form, rhymes)
+		return self.poem2text(p)
 
 
 import pickle
@@ -210,12 +244,14 @@ def main():
 	x = ('za ', 'secondary')
 	x = ('zlob', UNSTRESSED)
 	
-	m = NGramAccentualSyllabicModel(syll, accents, N=3)
+	m = NGramAccentualSyllabicModel(syll, accents, N=2)
 	
 	open("neb-syll", "w").write("".join(syll))
 
 	pg = PoemGenerator(m)
-	pg.generate_form(PoemGenerator.trochee)
+	for _ in range(3):
+		p = pg.generate_poem_text("-.-.|-.-.", rhymes=(0,0))
+		print(p)
 
 
 
