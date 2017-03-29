@@ -14,6 +14,8 @@ podvod pod/vod
 buchamr buc/ha/mr # zvláštní zednické kladívko
 doudit do/u/dit
 ^douze do/u/ze
+^umlkl$ u/ml/kl
+^mlkl$ ml/kl
 
 ^Wolf$ Wolf
 Wolfgang$ Wolf/gang

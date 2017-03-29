@@ -144,12 +144,16 @@ class NGramAccentualSyllabicModel:
 		if allow_secondary:
 			metrum = [ m+SECONDARY for m in metrum ]
 		
-		i = self.generate_init(tuple(metrum[:self.N]))
-		verse = list(i)
-		for i,m in enumerate(metrum[self.N:]):
-			j=i+self.N
-			x = (('za ', 'secondary'),)
-			#y = self.nmo_grams[x].generate()
+		N = len(metrum)
+		# HACK
+		# because we can get stuck when N-1 syllables are generated, and then we don't
+		# have any accents left for next initial N-gram of syllables:
+		metrum = metrum + metrum
+		init = self.generate_init(tuple(metrum[:self.N]))
+		verse = list(init)
+		while len(verse) < N:
+			j = len(verse)
+			m = metrum[j]
 			
 			try:
 				k = tuple(verse[-self.N+1:]) if self.N>1 else ()
@@ -163,8 +167,10 @@ class NGramAccentualSyllabicModel:
 			#	raise
 			else:
 				verse.append(n)
-		#verse_str = "".join(s for s,_  in verse)
-		return verse
+				
+		# in the end only first N syllables are on the output, they match metrum, but in fact
+		# in verse can be more of them
+		return verse[:N]
 
 
 

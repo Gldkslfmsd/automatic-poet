@@ -141,7 +141,7 @@ if __name__ == "__main__":
 		'"-.-.-.|-.-.-.|-.-.-.|-.-.-" with rhyme 0022 (this is default), '
 		'"dactyle" for "-..-..-..|-..-..-.|-..-..-..|-..-..-." rhymed 0121.',
 		type=str,
-		default="trochee",
+		default=None,
 		)
 
 	parser.add_argument(
