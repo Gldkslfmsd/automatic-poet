@@ -45,14 +45,14 @@ class PoemGenerator:
 		return ptext.replace("~"," ")
 				
 
-	def generate_form(self, form, rhymes=None):
+	def generate_form(self, form, rhymes=None, allow_first_secondary=False):
 		form = "".join(c for c in form if c!=" ")
 		verses = form.split("|")
 
 		poem = []
 		# in first verse, secondary stress instead of primary or unstressed
 		# is not allowed, in other verses it is
-		f = False
+		f = allow_first_secondary
 		for v in verses:
 			metrum = [ (PRIMARY if m=="-" else UNSTRESSED) for m in v ]	
 			verse = self.model.generate_verse(metrum, allow_secondary=f)
@@ -65,16 +65,16 @@ class PoemGenerator:
 		
 		return poem
 	
-	def generate_poem_text(self, form, rhymes=None):
-		p = self.generate_form(form, rhymes)
+	def generate_poem_text(self, form, rhymes=None, **kw):
+		p = self.generate_form(form, rhymes, **kw)
 		return self.poem2text(p)
 
 
 	def generate_common_pattern(self, pattern):
 		if pattern == "trochee":
 			return self.generate_poem_text(self.trochee, rhymes=(0,0,2,2))
-		if pattern == "dactyle":
-			return self.generate_poem_text(self.dactyle, rhymes=(0,1,2,1))
+		if pattern == "dactyl":
+			return self.generate_poem_text(self.dactyl, rhymes=(0,1,2,1), allow_first_secondary=True)
 
 
 
@@ -139,7 +139,7 @@ if __name__ == "__main__":
 		'-c', '--use-common-pattern',
 		help='Use common poem pattern. "trochee" for '
 		'"-.-.-.|-.-.-.|-.-.-.|-.-.-" with rhyme 0022 (this is default), '
-		'"dactyle" for "-..-..-..|-..-..-.|-..-..-..|-..-..-." rhymed 0121.',
+		'"dactyl" for "-..-..-..|-..-..-.|-..-..-..|-..-..-." rhymed 0121.',
 		type=str,
 		default=None,
 		)
@@ -173,6 +173,12 @@ if __name__ == "__main__":
 	except ValueError:
 		print("invalid rhyme pattern, exiting")
 		exit(1)
+		
+	# checking common pattern:
+	if args.use_common_pattern and args.use_common_pattern not in ["dactyl", "trochee"]:
+		print("invalid common pattern, only 'dactyl' or 'trochee' is available, exiting", file=stderr)
+		exit(1)
+		
 
 	# loading and processing data
 	if args.load_model:

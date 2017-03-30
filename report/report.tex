@@ -10,6 +10,9 @@
 %\usepackage{tikz-dependency}
 \usepackage[ampersand]{easylist}
 
+\def\furl#1{\footnote{\url{#1}}}
+
+
 \begin{document}
 
 \title{Automatic accentual-syllabic poet}
@@ -25,9 +28,9 @@ dominik.machacek@matfyz.cz
 %\pacs{PACS numbers go here. These are classification codes for your  research. See {\tt http://publish.aps.org/PACS/} for more info.}
 \maketitle
 
-\begin{abstract}
-TODO: An abstract is a great convenience for the reader and is required by all journals.
-\end{abstract}
+%\begin{abstract}
+%TODO: An abstract is a great convenience for the reader and is required by all journals.
+%\end{abstract}
 
 
 \section{Introduction}
@@ -37,6 +40,10 @@ Our task is to create a generator of an accentual-syllabic poetry.
 Verses in this kind of poetry are restricted by the rhythm of accents, all
 verses must have given number of syllables and the verses in a strophe
 rhyme by the chosen pattern. See example in figure \ref{may}.
+
+\def\surl#1{%
+    {\footnotesize\url{#1}}%
+}%
 
 \begin{figure}[ht]
 \label{may}
@@ -87,13 +94,124 @@ have meaning and the whole poem has some intention.
 To write a good poem is a difficult task, a poet must choose proper words
 and fit them into a pleasant form. 
 
-Our motivation is the fact that such poems will be unique, interesting and
-entertaining pieces of art. They could also be published for
-general public and draw attention to the whole field of Computational Linguistics.
+We want to make an automatic poems generator because with it new poems can
+be easily created by computer. They will be unique, interesting and
+entertaining pieces of art. They could also be published for general public
+and draw attention to the whole field of Computational Linguistics.
 
 \section{Related works}
 
-TODO
+We can find works from other authors more or less related to our topic, but
+there isn't any work providing accentual-syllabic poetry generator for Czech. 
+Related works are described in this section.
+
+\subsection{Poem generators with restricted originality}
+
+On the Internet we can find several
+sites called "poems generators", which are in fact simple games producing texts with
+very restricted originality. They ask a user for a set of input words and then
+they put them into a static template. Results usually don't have a fixed rhythm
+and they usually don't rhyme. See table \ref{tab:gen} for example of such generators.
+
+\begin{table}[ht]
+\begin{tabular}{ll}
+\hline
+{\bf name} & {\bf URL} \\
+\hline
+\hline
+AI poem & \surl{http://www.aipoem.com/easypoem/} \\
+Poem Generator & \surl{http://thinkzone.wlonk.com/PoemGen/PoemGen.htm} \\
+PoemOfQuotes & \surl{http://www.poemofquotes.com/tools/poetry-generator.php} \\
+\hline
+\hline
+\end{tabular}
+\caption{}
+\label{tab:gen}
+\end{table}
+
+
+\subsection{Short poems of restricted form}
+
+There are restricted poem forms having small length and a simple constraints
+verifiable by computer.
+Computer programs can be used to generate or to seek them in a big corpus.
+For example snowballs are sentences where every word is one letter longer
+than previous. A computer can find such words in a corpus and put them
+together to create a meaningful sentence. 
+Summary\footnote{We have taken most of them from following source:
+\url{http://mentalfloss.com/article/57715/14-hilarious-automatic-text-and-tweet-generators-flair-poetry-and-language-play}  
+}
+of such works is in table \ref{tab:restricted}.
+
+\begin{table}[ht]
+\begin{tabular}{lll}
+\hline
+{\bf name} & {\bf URL} & {\bf form} \\
+\hline
+\hline
+Snowball poetry & \surl{https://twitter.com/snowballpoetry}
+& snowball \\
+Pentametron & \surl{https://twitter.com/pentametron} & iambic pentameter \\
+Anagramatron & \surl{https://twitter.com/anagramatron} & anagrams \\
+HAIKU9000 & \surl{https://twitter.com/HAIKU9000} & haiku \\
+Pangramtweets & \surl{https://twitter.com/PangramTweets} & pangrams \\
+\hline
+\hline
+\end{tabular}
+\caption{}
+\label{tab:restricted}
+\end{table}
+
+\subsection{Neural network poetry}
+
+In other group of works state-of-the art deep learning techniques are used
+to generate poetry. They put effort to make a poem with a deep meaning, but
+use a loose form of a free verse. Some of them also aim to artificially
+create poems which would pass Turing test, it means to be judged by humans
+as created by humans and not by bot. They can be found on the site "Bot or
+not"\furl{http://botpoet.com/}.
+
+Some of the works related with neural network poetry can be found in
+table\ref{tab:nn}.
+
+\begin{table}[ht]
+\begin{tabular}{lll}
+\hline
+{\bf name} & {\bf URL} \\
+\hline
+\hline
+A Neural Network's Poetry  & \surl{http://neuralnetpoetry.blogspot.de/} \\
+NeuralSnap & \surl{https://github.com/rossgoodwin/neuralsnap} \\
+\hline
+\hline
+\end{tabular}
+\caption{}
+\label{tab:restricted}
+\end{table}
+
+% Slovak generator of Vogon poetry: http://www.ludoslovensky.sk/slova/vogon/
+% could be also somehow mentioned
+
+
+\subsection{Poetweet}
+
+There exists a site poetweet\furl{http://poetweet.com.br/}, where a user
+fills a Twitter channel and then chooses a poem type. He can choose either a sonnet,
+rondel or indriso, that are a fixed forms of accentual-syllabic poetry.
+Afterwards, tweets from the Twitter channel are extracted and a poem is
+created from tweets' coherent excerpts. It also provides links for
+mentioned tweets.
+
+Poetweet doesn't have any restrictions on the channel's language and
+doesn't provide any information about its inner design. It could be
+intended for Portuegese and could use language-specific processes. Also the
+poem form and source domain are very restricted.
+
+Poems from Czech Twitter channels doesn't have a strict good-quality rhythm,
+but they have rhymes.
+%Poetweet also shows that using coherent text excerpts
+%is a good idea, .
+
 
 \section{Solution}
 
@@ -125,25 +243,113 @@ restricts the domain and size of input texts.
 \subsection{Text preprocessing}
 
 In text preprocessing we do tokenization and sentence segmentation, because
-syllabification and accentification requires single sentences. We also
-remove punctuation and transform text to lowercase. This decreases number of
-unique syllables and makes language model more inovative.
+following syllabification and accentification steps require single sentences. We also
+remove punctuation and digits and transform text to lowercase. This decreases number of
+unique syllables and makes language model more inovative, although it losts
+some information.
 
-For tokenization and segmentation we used NLTK. % reference
+For tokenization and segmentation we use NLTK Punkt tokenizer \cite{nltk}. % reference
 
 \subsection{Syllabification}
 
-For automatic syllabification we used "sekáček". % TODO
-It's a Python implementation of rules created by experts on this issue, who
-published it in % reference
+For automatic syllabification we used Sekáček\cite{sekacek}.
+It's a Python implementation of static rules created by experts on this
+issue. The algorithm was described by Jitka Štindlová\cite{naserec}.
+It's intended only for Czech.
 
 \subsection{Accents}
 
-Accents in Czech 
+Resource as\cite{prizvuk} state that accents Czech is a language with
+a fixed accent. It's always on the first syllable of a word some exceptions: 
+
+-- monosylabic prepositions are so called enclitics, they take accent from
+following word and therefore they're accented. 
+
+%Example without
+%prepostition: {\bf o}ke{\sl nní} {\bf
+%rám}, with prepostion {\bf pod} o{\sl ke}nním {\bf rá}mem (a window frame, under a window
+%frame)
+
+-- some functions words as monosylabic (short forms of) personal and
+reflexive pronouns or past tense and conditional's auxiliaries are clitics,
+they always follow some word and are not accented %Example: 
+
+-- in Czech poetry, a secondary accent is sometimes used, it's on the third and
+fifth and every following odd syllable of a word
+
+-- according to Rýmy.cz\cite{rymy}, monosyllabic words in poetry can be
+sometimes read as accented and sometimes as non-accented, it depends on
+it's position between other words
+
+For our application we decided to implement only this rules. They hold in
+majority of situations, but not always. For example, Jiří Zeman\cite{zeman} claims that
+there are also articulatory influences leading to unstressed
+pronunciation of monosylabic prepositions {\sl u, o} (near, about), if
+following word starts with a vowel. %Compound words have also a secondary stress on
+%a first syllable of second word, even if it
+
+\subsubsection{Implementation}
+
+We implemented a finite state transducer\cite{jurafsky} to mark every syllable as either 
+
+-- primary stressed
+
+-- unstressed
+
+-- secondary stressed -- it's every third or following odd syllable in
+a word and also monosylabic word apart clitics
+
+In a stress pattern, secondary stressed syllables can hold as either
+stressed or unstressed.  
+For clitics detection we created a static list.
+
 
 \subsection{Language model}
 
+We used N-gram language model. One unit of model is
+a syllable and its accent. Syllables have 
+
+Example of model is in figure\ref{fig:model}.
+
+\begin{figure}[ht]
+\centerline{
+Input text:
+"nanana na nana"
+Syllables:
+%" na/P", "na/U", "na/S", " na /S", " na/P", "na /U"
+}
+\caption{
+}
+\label{fig:model}
+\end{figure}
+
+
+\footnotetext{From "The Crystal Spring" by J. V. Sládek, translated by
+Václav Z J Pinkava.
+Available at \url{http://www.vzjp.cz/basne.htm\#Sladek}.
+}
+
+
+
+
 \subsection{Generating}
+
+When model is created
+
+\subsubsection{Rhymes}
+
+
+Rýmy.cz\cite{rymy} describes good-quality criteria of rhymes. Rhyme
+shouldn't be trivial, for example a rhyme of two words of the same
+grammatical category in the same grammatical form is considered as banal
+and ugly. In our application, words have no meanings and therefore no
+grammatical category.
+
+Two words rhyme if the phonetical forms of their endings are similar. 
+Therefore for a good rhyming we need a morphological tagging and
+phonological transcription. We decided to avoid this issue by simple way:
+If two verses should rhyme, then we simply replace the last syllable of the
+second verse with the last syllable of the first verse.
 
 \section{Example outputs}
 
@@ -152,11 +358,53 @@ Accents in Czech
 
 \begin{thebibliography}{99}
 
-\bibitem{lamport}
- {\sl LaTeX : A Documentation Preparation System User's Guide and Reference Manual}, Leslie Lamport [1994] (ISBN: 0-201-52983-1) pages: xvi+272.
+\bibitem{nltk}
+ {\sl NLTK: Nature Language Toolkit}
 
-\bibitem{latt}
-I.M. Smart {\it et al.}, J. Plumb Phys. {\bf 50}, 393 (1983).
+\bibitem{sekacek}
+ {\sl Sekáček -- split Czech text to syllables}.
+ \url{https://github.com/Gldkslfmsd/sekacek}
+
+
+\bibitem{naserec}
+ {\sl Jitka Štindlová: Dělení slov v češtině pomocí strojů}
+(Word-splitting in Czech by machines). [1968] Published in {\sl Naše řeč}
+(Our language),
+{\sl year 51, number 1, pg. 23-32}. Available at
+\url{http://nase-rec.ujc.cas.cz/archiv.php?art=5348}.
+
+
+% TODO!!!
+\bibitem{prizvuk}
+ {\sl Marta Šimečková: Jak je to se slovním přízvukem v~češtině.} (How is
+ it with a word-accent in Czech)
+ \url{http://www.vaseliteratura.cz/teorie-literatury/144-slovni-prizvuk}
+
+
+\bibitem{rymy}
+ {\sl Pavel Šrubař: www.rymy.cz} (Rhymes.cz)
+ \url{http://www.rymy.cz/rymy.htm}
+
+
+
+
+\bibitem{zeman}
+ {\sl Jiří Zeman: Ještě k přízvukování prvotních jednoslabičných
+ předložek}
+(Once again about a stress of monosylabic prepositions). [1983] Published in {\sl Naše řeč}
+(Our language),
+{\sl year 66, number 4, pg. 192-197}. Available at
+\url{http://nase-rec.ujc.cas.cz/archiv.php?art=6402}.
+
+
+
+\bibitem{jurafsky}
+ {\sl  Dan Jurafsky and James H. Martin:	
+ Speech and Language Processing
+ }
+
+
+
 
 \end{thebibliography}
 
