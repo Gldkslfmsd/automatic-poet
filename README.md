@@ -66,7 +66,7 @@ optional arguments:
 
 ## Want to know more?
 
-See report in `report` directory.
+See report in `report` directory and `results.txt` for some commented outputs and English translations.
 
 ## Author and licence
 
