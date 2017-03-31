@@ -385,8 +385,8 @@ Our observations show that the poems mostly have the intended rhythm. This
 rhythm is more regular and has better quality, if we use poems on the
 input. 
 
-On this place we're including only some of the generated poems. The poems
-in italics are attempts for English tranlations of previous ones.
+On this place we're including some of the generated poems. The poems
+in italics are attempts for English translations of previous ones.
 
 
 %\newcommand{\attrib}[1]{%
@@ -414,9 +414,154 @@ nightingale to skull, radiance rosed\\
 \end{verse}
 %\attrib{Samuel Butler (1612--1680)}
 
+\settowidth{\versewidth}{Than Tycho Brahe, or Erra Pater:}
+\begin{verse}[\versewidth]
+k vůve jedži  deha  hletě \\
+zaba  po jím  oné půj díš \\
+a vo druní  zvon  a  hluku \\
+krola  zde bě  já cha klobu\\
+\end{verse}
+
+\settowidth{\versewidth}{Than Tycho Brahe, or Erra Pater:}
+\begin{verse}[\versewidth]
+zamratě  nala  vždyc se  rá\\
+kamena  tu  přežáry  a \\
+libuše  i  nyní  trouby \\
+všecko  mého  vraného  a \\
+\end{verse}
+
+\settowidth{\versewidth}{Than Tycho Brahe, or Erra Pater:}
+\begin{verse}[\versewidth]
+\it
+she na-ed zamratessly her allw rah\\
+she stoned -- here over-heats and\\
+Libushe also now ovens\\
+everything with my black and\\
+\end{verse}
+
+\settowidth{\versewidth}{Than Tycho Brahe, or Erra Pater:}
+\begin{verse}[\versewidth]
+život  s věčnou  smrtí  sbratřil \\
+ženu  vábí  málo  zlato \\
+jeho  kosti  a  hle  stříbro \\
+klečí  klečí  nad  vodou  jsem\\
+\end{verse}
+
+\settowidth{\versewidth}{Than Tycho Brahe, or Erra Pater:}
+\begin{verse}[\versewidth]
+\it
+life brothered with eternal death -- \\
+woman's attracted by gold a little -- \\
+his bones -- and look -- silver\\
+he kneels, he kneels -- above the water I am!\\
+\end{verse}
+
+
+\settowidth{\versewidth}{Than Tycho Brahe, or Erra Pater:}
+\begin{verse}[\versewidth]
+pro  vši  víru  dobrých  lidí \\
+tělo  mrtvo  leží  ani \\
+komu  káže  slovo  lidské \\
+ježí  celou  tíží  na  ní \\
+\end{verse}
+
+\settowidth{\versewidth}{Than Tycho Brahe, or Erra Pater:}
+\begin{verse}[\versewidth]
+\it
+For all faith of good people\\
+a death corpse lies neither.\\
+To whom a human word preaches,\\
+she bristles on her with all her weight.\\
+\end{verse}
+
+
+
+
+
+
+\settowidth{\versewidth}{Than Tycho Brahe, or Erra Pater:}
+\begin{verse}[\versewidth]
+smysl  věty  v jeho  pracích \\
+kuda  chočet  jechať  chazcích \\
+názvu  sprechtakt  jehož  užil \\
+skládá  z jedné  nebo  z něžil\\
+\end{verse}
+
+\settowidth{\versewidth}{Than Tycho Brahe, or Erra Pater:}
+\begin{verse}[\versewidth]
+větší  váhu  nežli  ostat\\
+touto  větší  vahou  tímstat\\
+i  don  t  know  who  put  the  i \\
+přízvuk  slovní  nýbrž  pří i \\
+\end{verse}
+
+
+
+\settowidth{\versewidth}{Than Tycho Brahe, or Erra Pater:}
+\begin{verse}[\versewidth]
+cídým  prečá zabo  pudek \\
+odpiš ten tonénor zoká\\
+zmužli renčej chceda z ka to \\
+šlo po zmužjlep se ži daci\\
+\end{verse}
+
+
+\settowidth{\versewidth}{Than Tycho Brahe, or Erra Pater:}
+\begin{verse}[\versewidth]
+líbí  odpoťa  myří  ov\\
+ovčáček  jak  školní  pan  hans \\
+směrem  k modesádě  jsou  hnůj \\
+obvykle  na  svou  ničemu \\
+\end{verse}
+
+\settowidth{\versewidth}{Than Tycho Brahe, or Erra Pater:}
+\begin{verse}[\versewidth]
+\it
+Like it restier moush ov\\
+shepherdy how school Mr. Hans\\
+direction to modesade are mist\\
+usually to his to nothing\\
+\end{verse}
+
+\settowidth{\versewidth}{Than Tycho Brahe, or Erra Pater:}
+\begin{verse}[\versewidth]
+zmizik  lukas  zmizik  vondra \\
+střelba  pana  prezidenta \\
+v lukáš  musil  lukáš  musil \\
+leden  v lukas  zmizik  lukas \\
+\end{verse}
+
+\settowidth{\versewidth}{Than Tycho Brahe, or Erra Pater:}
+\begin{verse}[\versewidth]
+\it
+Eraser Lucas Eraser Clement\\
+a shooting of Mister President\\
+Lucas Had-to Lucas Had-to\\
+January Lucas Eraser Lucas\\
+\end{verse}
+
+
+
 
 
 \section{Conclusion}
+
+We used an N-gram language model for syllables for generating accentual
+poems from Czech syllables. Quality and originality of the poems depend on the input text
+domain and the parameter N, but we can say that we are able to generate
+interesting poems with regular rhythm.
+
+\subsection{Future work}
+
+Our work can be expanded by several ways. We can implement backtracking
+algorithm to seek rhytmical patterns of given length in a coherent text or in the N-gram
+model. We can add another restrictions so a verse can be a full grammatical
+sentence, or at least the verse will begin and end with actual word
+boundaries. Another restriction can be also to find rhyming verses.
+We can also implement metrics for the quality of a verse and
+find verses with at least acceptable quality. 
+
+\pagebreak
 
 
 \begin{thebibliography}{99}
