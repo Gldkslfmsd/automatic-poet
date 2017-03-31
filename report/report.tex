@@ -136,12 +136,12 @@ There are restricted poem forms having small length and a simple constraints
 verifiable by computer.
 Computer programs can be used to generate or to seek them in a big corpus.
 For example snowballs are sentences where every word is one letter longer
-than previous. A computer can find such words in a corpus and put them
+than the previous. A computer can find such words in a corpus and put them
 together to create a meaningful sentence. 
 Summary\footnote{We have taken most of them from following source:
 \url{http://mentalfloss.com/article/57715/14-hilarious-automatic-text-and-tweet-generators-flair-poetry-and-language-play}  
 }
-of such works is in table \ref{tab:restricted}.
+of such works is in table \ref{tab:rest}.
 
 \begin{table}[ht]
 \begin{tabular}{lll}
@@ -159,12 +159,12 @@ Pangramtweets & \surl{https://twitter.com/PangramTweets} & pangrams \\
 \hline
 \end{tabular}
 \caption{}
-\label{tab:restricted}
+\label{tab:rest}
 \end{table}
 
 \subsection{Neural network poetry}
 
-In other group of works state-of-the art deep learning techniques are used
+In other group of works state-of-the-art deep learning techniques are used
 to generate poetry. They put effort to make a poem with a deep meaning, but
 use a loose form of a free verse. Some of them also aim to artificially
 create poems which would pass Turing test, it means to be judged by humans
@@ -172,7 +172,7 @@ as created by humans and not by bot. They can be found on the site "Bot or
 not"\furl{http://botpoet.com/}.
 
 Some of the works related with neural network poetry can be found in
-table\ref{tab:nn}.
+table \ref{tab:nn}.
 
 \begin{table}[ht]
 \begin{tabular}{lll}
@@ -186,7 +186,7 @@ NeuralSnap & \surl{https://github.com/rossgoodwin/neuralsnap} \\
 \hline
 \end{tabular}
 \caption{}
-\label{tab:restricted}
+\label{tab:nn}
 \end{table}
 
 % Slovak generator of Vogon poetry: http://www.ludoslovensky.sk/slova/vogon/
@@ -259,8 +259,8 @@ It's intended only for Czech.
 
 \subsection{Accents}
 
-Resource as\cite{prizvuk} state that accents Czech is a language with
-a fixed accent. It's always on the first syllable of a word some exceptions: 
+Resource as\cite{prizvuk} state that Czech is a language with
+a fixed accent. It's always on the first syllable of a word with only some exceptions: 
 
 -- monosylabic prepositions are so called enclitics, they take accent from
 following word and therefore they're accented. 
@@ -270,7 +270,7 @@ following word and therefore they're accented.
 %rám}, with prepostion {\bf pod} o{\sl ke}nním {\bf rá}mem (a window frame, under a window
 %frame)
 
--- some functions words as monosylabic (short forms of) personal and
+-- some function words as monosylabic (short forms of) personal and
 reflexive pronouns or past tense and conditional's auxiliaries are clitics,
 they always follow some word and are not accented %Example: 
 
@@ -297,7 +297,7 @@ We implemented a finite state transducer\cite{jurafsky} to mark every syllable a
 -- unstressed
 
 -- secondary stressed -- it's every third or following odd syllable in
-a word and also monosylabic word apart clitics
+a word and also monosylabic word apart from clitics
 
 In a stress pattern, secondary stressed syllables can hold as either
 stressed or unstressed.  
@@ -307,34 +307,50 @@ For clitics detection we created a static list.
 \subsection{Language model}
 
 We used N-gram language model. One unit of model is
-a syllable and its accent. Syllables have 
+a syllable, its accent (we destinguish primary, secondary and unstressed)
+and its position in a word, it can be either initial, middle, trailing or
+initial and trailing at once (for monosylabic words). For example, a word
+"papa" consists of two different syllables, one is "pa-" and the other is
+"-pa".
 
-Example of model is in figure\ref{fig:model}.
+For every (N-1)-gram of syllables/accents pair, probabilities of next
+syllables by given accents are estimated by maximum likelihood estimation
+from the whole corpus. We don't use any smoothing. 
 
-\begin{figure}[ht]
+For generation of an initial N-gram we also compute the probabilities of
+syllables by given N-grams of accents.
+
+%Since a secondary stressed syllables can stand on a place of either primary
+%stressed or unstressed syllables, we merge probabilities for generating of
+%primary or secondary  syllables and for generating of unstressed or
+%secondary.
+
+Trivial example of unigram model is in table \ref{tab:model}.
+
+\begin{table}[ht]
 \centerline{
-Input text:
-"nanana na nana"
-Syllables:
-%" na/P", "na/U", "na/S", " na /S", " na/P", "na /U"
+	\includegraphics{corpus.pdf}
 }
-\caption{
+\caption{Example model.
 }
-\label{fig:model}
-\end{figure}
-
-
-\footnotetext{From "The Crystal Spring" by J. V. Sládek, translated by
-Václav Z J Pinkava.
-Available at \url{http://www.vzjp.cz/basne.htm\#Sladek}.
-}
+\label{tab:model}
+\end{table}
 
 
 
 
 \subsection{Generating}
 
-When model is created
+Generator has on its input a language model and a verse pattern, it's a sequence of symbols
+denoting stressed or unstressed syllable. For generation of initial N-gram
+by given stress, we select one N-gram matching the stress pattern. Then we
+take last generated (N-1)-gram and randomly select the next syllable with given
+stress by precomputed probability distribution, which is stored in a model.
+We repeat this for the whole verse pattern.
+
+If we can't continue because the last generated (N-1)-gram doesn't provide any
+following syllable matching given stress, then we generate a new N-gram as
+in the beginning and continue.
 
 \subsubsection{Rhymes}
 
@@ -342,16 +358,24 @@ When model is created
 Rýmy.cz\cite{rymy} describes good-quality criteria of rhymes. Rhyme
 shouldn't be trivial, for example a rhyme of two words of the same
 grammatical category in the same grammatical form is considered as banal
-and ugly. In our application, words have no meanings and therefore no
-grammatical category.
+and bad-quality.
 
 Two words rhyme if the phonetical forms of their endings are similar. 
 Therefore for a good rhyming we need a morphological tagging and
-phonological transcription. We decided to avoid this issue by simple way:
+also a phonological transcription, because for example words "dětský" and
+"pecky" rhymes, although their ortographical forms of their endings are not
+the same. In our application, words have no meanings and
+therefore no grammatical category.
+
+We decided to avoid the issue with a rhyme by simple way:
 If two verses should rhyme, then we simply replace the last syllable of the
 second verse with the last syllable of the first verse.
 
 \section{Example outputs}
+
+We tried to generate poems from different types of texts, from novels,
+scientific paper, Facebook page and also from a longer accentual-syllabic poems and poem
+collections. We also experimented with 
 
 \section{Conclusion}
 

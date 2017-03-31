@@ -1,0 +1,178 @@
+Máj, bigram, trochee without a rhyme
+====================================
+-- lyrical-epical romantical tragedy poem from 1836 by Karel Hynek Mácha
+-- 4800 words, rhythm of verses is mostly trochee
+-- an original poem has a strong atmosphere of sadness, this remains
+also in generated poems from this source
+-- in following generated poem
+
+Generated original:
+-- one of the best
+
+temný  letí  pomstu  dvory 
+bludinu  svou  v matku  mém  dvě 
+v bledé  tváře  bledou  barví 
+v lebku  slavík  růžila  zář  
+
+Translation:
+-- I tried to keep original rhythm
+
+dark he flies revenge dooryards 
+his strayeress, mother my two
+in her pale face he dyes her pale
+nightingale to skull, radiance rosed
+
+
+
+Kytice
+======
+-- a collection of ballads from 1852
+-- 13055 words
+
+Generated unigram:
+-- untranslatable nonsense, mostly non-existing words, 2
+
+k vůve jedži  deha  hletě 
+zaba  po jím  oné půj díš 
+a vo druní  zvon  a  hluku 
+krola  zde bě  já cha klobu
+
+
+Generated bigram:
+-- half newly created words, half existing words
+-- "přežáry" / "overheats" is a nice new word, it could be a village name
+
+zamratě  nala  vždyc se  rá
+kamena  tu  přežáry  a 
+libuše  i  nyní  trouby 
+všecko  mého  vraného  a 
+
+
+she na-ed zamratessly her allw rah
+she stoned -- here over-heats and
+Libushe* also now ovens
+everything with my black and
+
+(*a female name)
+
+
+
+Trigram:
+
+život  s věčnou  smrtí  sbratřil 
+ženu  vábí  málo  zlato 
+jeho  kosti  a  hle  stříbro 
+klečí  klečí  nad  vodou  jsem
+
+
+Trigram translation:
+
+life brothered with eternal death -- 
+woman's attracted by gold a little -- 
+his bones -- and look -- silver
+he kneels, he kneels -- above the water I am!
+
+
+8-gram model:
+-- in fact, a whole verse which passed to the rhytm was taken randomly
+-- following poem accidentally rhymes, although it wasn't intended
+
+pro  vši  víru  dobrých  lidí 
+tělo  mrtvo  leží  ani 
+komu  káže  slovo  lidské 
+ježí  celou  tíží  na  ní 
+
+Free translation:
+
+For all faith of good people
+a death corpse lies neither.
+To whom a human word preaches,
+she bristles on her with all her weight.
+
+(*original reminds a word "to lie", but it's not completely this word)
+
+
+
+
+
+
+
+About the speech rhytm in Czech
+===============================
+-- a scientific paper from the field of Czech linguistics from 1954
+-- 2097 words, includes sample sentences in other languages (English,
+Russian, German, French,...) 
+-- http://sas.ujc.cas.cz/archiv.php?art=743
+-- trochee, rhyme AABB
+
+8-gram model:
+-- although the source is a prose, following poem has a nice regular rhythm
+-- second verse is in Russian
+
+smysl  věty  v jeho  pracích 
+kuda  chočet  jechať  chazcích 
+názvu  sprechtakt  jehož  užil 
+skládá  z jedné  nebo  z něžil
+
+
+větší  váhu  nežli  ostat
+touto  větší  vahou  tímstat
+i  don  t  know  who  put  the  i 
+přízvuk  slovní  nýbrž  pří i 
+
+
+
+
+
+
+
+Jiří Ovčáček Unofficial
+=======================
+-- trochee without a rhyme
+https://www.facebook.com/jiriovcacekunofficial/?fref=ts
+-- a parody Facebook page of the spokesman of the President of Czech
+Republic
+-- source text contains FB posts, discussions, dates, FB function words
+("Respond", "Like it" etc.), names and surnames of debaters etc.
+-- content is mostly irony, dark humour, humiliating
+
+Unigram model:
+-- newly created words, untranslatable nonsense
+
+cídým  prečá zabo  pudek 
+odpiš ten tonénor zoká
+zmužli renčej chceda z ka to 
+šlo po zmužjlep se ži daci
+
+
+
+
+
+Bigram original:
+
+líbí  odpoťa  myří  ov
+ovčáček  jak  školní  pan  hans 
+směrem  k modesádě  jsou  hnůj 
+obvykle  na  svou  ničemu 
+
+Bigram literal translation:
+
+Like it restier moush ov
+shepherdy how school Mr. Hans
+direction to modesade are mist
+usually to his to nothing
+
+5-gram:
+
+zmizik  lukas  zmizik  vondra 
+střelba  pana  prezidenta 
+v lukáš  musil  lukáš  musil 
+leden  v lukas  zmizik  lukas 
+
+5-gram translation:
+
+Eraser Lucas Eraser Clement
+a shooting of Mister President
+Lucas Had-to Lucas Had-to
+January Lucas Eraser Lucas
+
