@@ -179,6 +179,11 @@ if __name__ == "__main__":
 		print("invalid common pattern, only 'dactyl' or 'trochee' is available, exiting", file=stderr)
 		exit(1)
 		
+	# checking textfile is present
+	if not args.text:
+		print("input textfile not specified. Use --help argument to see help-message.", file=stderr)
+		exit(1)
+		
 
 	# loading and processing data
 	if args.load_model:
