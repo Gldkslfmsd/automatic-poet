@@ -10,6 +10,8 @@
 %\usepackage{tikz-dependency}
 \usepackage[ampersand]{easylist}
 
+\usepackage{verse}
+
 \def\furl#1{\footnote{\url{#1}}}
 
 
@@ -374,8 +376,45 @@ second verse with the last syllable of the first verse.
 \section{Example outputs}
 
 We tried to generate poems from different types of texts, from novels,
-scientific paper, Facebook page and also from a longer accentual-syllabic poems and poem
-collections. We also experimented with 
+scientific paper, Facebook page and also from longer accentual-syllabic
+poems and poem collection. We also experimented with different values of
+N for N-gram model. This experiments are commented and reported here: 
+\url{https://github.com/Gldkslfmsd/automatic-poet/blob/master/results.txt}.
+
+Our observations show that the poems mostly have the intended rhythm. This
+rhythm is more regular and has better quality, if we use poems on the
+input. 
+
+On this place we're including only some of the generated poems. The poems
+in italics are attempts for English tranlations of previous ones.
+
+
+%\newcommand{\attrib}[1]{%
+%\nopagebreak{\raggedleft\footnotesize #1\par}}
+%\renewcommand{\poemtitlefont}{\normalfont\large\itshape\centering}
+
+
+%\poemtitle{Mathematics}
+\settowidth{\versewidth}{Than Tycho Brahe, or Erra Pater:}
+\begin{verse}[\versewidth]
+temný  letí  pomstu  dvory \\
+bludinu  svou  v matku  mém  dvě \\
+v bledé  tváře  bledou  barví \\
+v lebku  slavík  růžila  zář  \\
+\end{verse}
+
+\settowidth{\versewidth}{Than Tycho Brahe, or Erra Pater:}
+\begin{verse}[\versewidth]
+%literal translation: \\
+\it
+dark he flies revenge dooryards \\
+his strayeress, mother my two\\
+in her pale face he dyes her pale\\
+nightingale to skull, radiance rosed\\
+\end{verse}
+%\attrib{Samuel Butler (1612--1680)}
+
+
 
 \section{Conclusion}
 
